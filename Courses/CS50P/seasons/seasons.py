@@ -16,9 +16,8 @@ def main():
 def check_get_format(input_date, today):
     if (re.search(r"^(\d{4})-(0[1-9]|1[0-2])-(0[0-9]|[12][0-9]|3[01])$", input_date)) :
         try:
-            # year, month, days =  map(int, input_date.split('-'))
-            # d = date(year, month, days)
-            d = date.fromisoformat(input_date)
+            year, month, days =  map(int, input_date.split('-'))
+            d = date(year, month, days)
             return d if today > d else False
         except ValueError:
              return False
