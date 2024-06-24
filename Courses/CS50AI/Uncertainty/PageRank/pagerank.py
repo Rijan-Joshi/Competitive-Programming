@@ -125,12 +125,27 @@ def iterate_pagerank(corpus, damping_factor):
     PageRank values should sum to 1.
     """
     pagerank = dict()
+    d = damping_factor
+    N = len(corpus)
+
+    #Initializing all pages to the pagerank of 1/N
+    for page in corpus:
+        pagerank[page] = 1/N
+    
+    def pr(page):
+        current_pagerank = pagerank[page]
+        pagerank[page] = (1-d)/N + d * second(page)
+
+        while abs(current_pagerank - pagerank[page]) > 0.001:
+            pr(page)
+
+    def second(p):
+        for filename in corpus:
+            if p in corpus[filename]:
+                return pagerank[filename]/len(corpus[filename])
 
     for page in corpus:
-        pagerank[page] = 1/len(corpus)
-    
-    
-
+        pagerank[page] = pr(page)
 
 if __name__ == "__main__":
     main()
