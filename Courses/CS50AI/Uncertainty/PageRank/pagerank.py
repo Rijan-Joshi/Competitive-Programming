@@ -2,6 +2,8 @@ import os
 import random
 import re
 import sys
+import numpy as np
+from collections import Counter
 
 DAMPING = 0.85
 SAMPLES = 10000
@@ -57,7 +59,18 @@ def transition_model(corpus, page, damping_factor):
     linked to by `page`. With probability `1 - damping_factor`, choose
     a link at random chosen from all pages in the corpus.
     """
-    raise NotImplementedError
+
+    transition_model = dict()
+    p_inside = damping_factor/len(corpus[page]) + ((1-damping_factor)/len(corpus))
+    p_outside = (1-damping_factor)/len(corpus)
+    
+    for key in corpus:
+        if key in corpus[page]:
+            transition_model[key] = p_inside
+        else:
+            transition_model[key] = p_outside
+    
+    return transition_model
 
 
 def sample_pagerank(corpus, damping_factor, n):
@@ -69,7 +82,37 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+
+    #Getting all the pages as states from the corpus
+    states = list(corpus.keys())
+
+    #Selecting the starting state randomly from the given html pages from the corpus
+    start_state = random.choice(states)
+    current_state = start_state
+
+    #Keeping track of the sampled_state
+    sampled_state = [start_state]
+
+    #Keeping track of the count
+    count_tracker = Counter()
+    count_tracker[start_state] += 1
+
+    while len(sampled_state) < n:        
+        #Getting the probabilities considering the damping factor
+        transition = transition_model(corpus, current_state, damping_factor)
+        
+        #Getting the states and weights from transition model
+        states = list(transition.keys())
+        weights = list(transition.values())
+
+        next_state = np.random.choice(states, p = weights)
+
+        current_state = next_state
+        sampled_state.append(current_state)
+        count_tracker[str(current_state)] += 1 
+
+    pagerank = {page: count/n for page, count in count_tracker.items()}
+    return pagerank
 
 
 def iterate_pagerank(corpus, damping_factor):
@@ -81,7 +124,12 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    pagerank = dict()
+
+    for page in corpus:
+        pagerank[page] = 1/len(corpus)
+    
+    
 
 
 if __name__ == "__main__":
