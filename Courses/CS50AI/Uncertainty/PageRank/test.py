@@ -269,34 +269,36 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    pagerank = dict()
+    
     d = damping_factor
     N = len(corpus)
 
-    #Initializing all pages to the pagerank of 1/N
-    for page in corpus:
-        pagerank[page] = 1/N
-    
-    def pr(page):
-        current_pagerank = pagerank[page]
-        pagerank[page] = (1-d)/N + d * second(page)
+    #Initializing Pagerank to 1/N
+    pagerank = {page : 1/N for page in corpus}
 
-        print("Difference ", abs(current_pagerank - pagerank[page]))
+    #Setting the value by which it mustn't differ
+    tolerance = 0.001
 
-        if abs(current_pagerank - pagerank[page]) > 0.001:
-             pr(page)
-        return pagerank[page]
-    
+    #Keeping track if the pagerank has converged
+    converged = False
 
-    def second(p):
-        print(pagerank)
-        for filename in corpus:
-            if p in corpus[filename]:
-                return pagerank[filename]/len(corpus[filename])
+    #Iterating until the pagerank has converged
+    while not converged:    
+        new_pagerank = dict()
+        #Calculating the new pagerank according to the iterative_algorithm formula
+        for page in corpus:
+            new_pagerank[page] = (1-d)/N + d * sum(
+                pagerank[i]/len(corpus[i])
+                for i in corpus
+                if page in corpus[i]
+            )
+        
+        #Change the value if all the value has converged within the value of tolerance
+        converged = all(abs(new_pagerank[page] - pagerank[page]) <= tolerance for page in corpus)
 
-    for page in corpus:
-        pagerank[page] = pr(page)
-    
+        #Changing the pagerank
+        pagerank = new_pagerank
+
     return pagerank
 
 if __name__ == "__main__":

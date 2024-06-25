@@ -115,37 +115,74 @@ def sample_pagerank(corpus, damping_factor, n):
     return pagerank
 
 
-def iterate_pagerank(corpus, damping_factor):
-    """
-    Return PageRank values for each page by iteratively updating
-    PageRank values until convergence.
+# def iterate_pagerank(corpus, damping_factor):
+#     """
+#     Return PageRank values for each page by iteratively updating
+#     PageRank values until convergence.
 
-    Return a dictionary where keys are page names, and values are
-    their estimated PageRank value (a value between 0 and 1). All
-    PageRank values should sum to 1.
-    """
-    pagerank = dict()
+#     Return a dictionary where keys are page names, and values are
+#     their estimated PageRank value (a value between 0 and 1). All
+#     PageRank values should sum to 1.
+#     """
+
+#     d = damping_factor
+#     N = len(corpus)
+
+#     #Initializing the pagerank value to 1/N
+#     pagerank = {page: 1/N for page in corpus}
+
+#     #Setting up the value by which the pagerank must differ at most
+#     tolerance = 0.001
+
+#     #Keeping track if the pagerank has converged
+#     converged = False
+
+#     #Iterating until the data is converged
+#     while not converged:
+#         new_pagerank = dict()
+
+#         for page in corpus:
+#             new_pagerank[page] = (1-d)/N + d * sum(
+#                 pagerank[i]/len(corpus[i])
+#                 for i in corpus
+#                 if page in corpus[i]
+#             )
+        
+#         #Checking if pagerank has converged and changing to True if converged
+#         converged = all(abs(new_pagerank[page] - pagerank[page]) <= tolerance for page in corpus)
+
+#         pagerank = new_pagerank
+
+#     return pagerank
+
+def iterate_pagerank(corpus, damping_factor):
+    pagerank = {page: 1 / len(corpus) for page in corpus}
     d = damping_factor
     N = len(corpus)
-
-    #Initializing all pages to the pagerank of 1/N
-    for page in corpus:
-        pagerank[page] = 1/N
-    
-    def pr(page):
-        current_pagerank = pagerank[page]
-        pagerank[page] = (1-d)/N + d * second(page)
-
-        while abs(current_pagerank - pagerank[page]) > 0.001:
-            pr(page)
+    convergence_threshold = 0.001
 
     def second(p):
+        a = 0
         for filename in corpus:
             if p in corpus[filename]:
-                return pagerank[filename]/len(corpus[filename])
+                a += pagerank[filename] / len(corpus[filename])
+        return a
 
+    def pr(page, previous_pagerank):
+        current_pagerank = pagerank.copy()
+        pagerank[page] = (1 - d) / N + d * second(page)
+
+        # Check for convergence
+        if any(abs(previous_pagerank[p] - pagerank[p]) > convergence_threshold for p in pagerank):
+            for p in pagerank:
+                pr(p, current_pagerank)
+
+    # Initialize the recursion for all pages
     for page in corpus:
-        pagerank[page] = pr(page)
+        pr(page, pagerank.copy())
+
+    return pagerank
+
 
 if __name__ == "__main__":
     main()
