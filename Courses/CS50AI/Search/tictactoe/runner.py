@@ -2,7 +2,7 @@ import pygame
 import sys
 import time
 
-import Uncertainty.PageRank.test as ttt
+import Uncertainty.Heredity.test as ttt
 
 pygame.init()
 size = width, height = 600, 400
