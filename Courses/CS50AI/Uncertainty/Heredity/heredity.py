@@ -140,16 +140,41 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone not in set` have_trait` does not have the trait.
     """
     names = set(people)    
-    # zero_gene = names - one_gene - two_genes
+    zero_gene = names - one_gene - two_genes
     a = []
-    
+    probability = 1
+
     def prob_without_parent(name, n):
         gene_probability = PROBS["gene"][n]
         trait_probability = PROBS["trait"][n][name in have_trait]
         return gene_probability * trait_probability
 
     def prob_with_parent(name,n):
-        pass
+        trait_probability = PROBS["trait"][n][name in have_trait]
+        mother = people[name]["mother"]
+        father = people[name]["father"]
+        
+        for parent in [mother, father]:
+            if parent in two_genes:
+                prob = [1-PROBS["mutation"], PROBS["mutation"]]
+            elif parent in one_gene:
+                prob = [0.5, 0.5]
+            else:
+                prob = [PROBS["mutation"], 1 - PROBS["mutation"]]
+
+            if parent == mother:
+                prob_from_mother = prob
+            else:
+                prob_from_father = prob
+        
+        if n == 2:
+            gene_probability = prob_from_mother[0] * prob_from_father[0]
+        elif n == 1:
+            gene_probability = prob_from_father[0] * prob_from_mother[1] + prob_from_father[1] * prob_from_mother[0]
+        else:
+            gene_probability = prob_from_mother[1] * prob_from_father[1]
+        
+        return gene_probability * trait_probability
 
     for name in names:
 
@@ -161,10 +186,10 @@ def joint_probability(people, one_gene, two_genes, have_trait):
             copy_n = 0
 
         if people[name]["mother"] is None and people[name]["father"] is None:
-            prob_without_parent(name, copy_n)
+            probability *= prob_without_parent(name, copy_n)
         else:
-            prob_with_parent(name, copy_n)
-
+            probability *= prob_with_parent(name, copy_n)
+    return probability
 
 def update(probabilities, one_gene, two_genes, have_trait, p):
     """
