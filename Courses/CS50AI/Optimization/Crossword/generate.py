@@ -195,7 +195,7 @@ class CrosswordCreator():
         return all(
             (len(assignment[variable]) == variable.length) and
             (list(assignment.values()).count(assignment[variable]) == 1) and
-            (no_conflict)
+            no_conflict
             for variable in assignment
         )
 
@@ -240,7 +240,7 @@ class CrosswordCreator():
             if variable not in assignment:
                 vars.append([variable, len(self.domains[variable]), len(self.crossword.neighbors(variable))])
 
-        return sorted(vars, key = lambda x: (x[1], x[2]))[0][0]
+        return sorted(vars, key=lambda x: (x[1], x[2]))[0][0]
 
         # for v1 in self.crossword.variables:
         #     best_variable = v1
