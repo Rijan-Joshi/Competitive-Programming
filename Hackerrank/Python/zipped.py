@@ -1,7 +1,7 @@
 #Using zipping in python for the first time
 
-N, X = map(int, input().split())
-marks = [list(map(float, input().split())) for _ in range(X)]
+N, y = map(int, input().split())
+marks = [list(map(float, input().split())) for _ in range(y)]
 
-for mark in zip(*marks):
-    print(sum(mark)/X)
+for m in zip(*marks):
+    print(sum(m)/y)
