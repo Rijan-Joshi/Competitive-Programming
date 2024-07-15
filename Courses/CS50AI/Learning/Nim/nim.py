@@ -165,6 +165,7 @@ class NimAI():
         if epsilon == False:
             return best_action
         else:
+            #Explore and Exploit
             actions = [action for action in possible_actions if action not in best_actions]
             all_actions = actions + best_actions
             probabilities = ([self.epsilon/len(actions) for _ in range(len(actions))]
